@@ -33,6 +33,7 @@
     <div>
         <strong>Filter:</strong>
         <label><input type="checkbox" name="US" value="1" id="filter-us-only" />US only</label>
+        <label><input type="checkbox" name="Sorted" value="1" id="filter-sorted" />Sorted</label>
     </div>
 
     <script>
@@ -115,21 +116,32 @@
         }
 
         //interactivity
-        d3.select('#filter-us-only').on('change', function() {
-            // This will be triggered when the user selects or unselects the checkbox
-            const checked = d3.select(this).property('checked');
-            if (checked === true) {
-                // Checkbox was just checked
-
-                // Keep only data element whose country is US
-                const filtered_data = data.filter((d) => d.location.country === 'US');
-
-                update(filtered_data); // Update the chart with the filtered data
-            } else {
-                // Checkbox was just unchecked
-                update(data); // Update the chart with all the data we have
-            }
+        d3.select('#filter-us-only').on('change', () => {
+            filtering_update()
         });
+        d3.select('#filter-sorted').on('change', () => {
+            filtering_update()
+        });
+
+        function filtering_update() {
+            let new_data = data.filter((d) => true);
+
+            const sorted = d3.select('#filter-sorted').property('checked');
+            if (sorted === true) {
+                new_data = new_data.sort((a, b) => {
+                    return a['temperature'] - b['temperature'];
+                });
+            } else {
+                new_data = data;
+            }
+
+            const us_only = d3.select('#filter-us-only').property('checked');
+            if (us_only === true) {
+                new_data = new_data.filter((d) => d.location.country === 'US');
+            }
+
+            update(new_data);
+        }
     </script>
 </body>
 
